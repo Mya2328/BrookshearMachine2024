@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brookshear VM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .memory, .registers, .controls {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            flex: 1;
+        }
+        .memory h2, .registers h2, .controls h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .memory table, .registers table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .memory th, .memory td, .registers th, .registers td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .memory th, .registers th {
+            background-color: #f1f1f1;
+        }
+        .controls {
+            flex-grow: 1.5;
+            overflow-y: hidden;
+        }
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .control-buttons button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .control-buttons button:hover {
+            background-color: #0056b3;
+        }
+        .controls div {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .controls label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .controls input[type="text"], .controls input[type="range"], .controls textarea {
+            width: 80%;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .scroll-box {
+            width: 100%;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .assembly-machine-container {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="memory">
+            <h2>Memory</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Addr</th>
+                        <th>Binary</th>
+                        <th>Hex</th>
+                        <th>Integer</th>
+                        <th>Float</th>
+                    </tr>
+                </thead>
+                <tbody id="memory-data">
+                    <!-- Memory data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="registers">
+            <h2>Registers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reg</th>
+                        <th>Binary</th>
+                        <th>Hex</th>
+                        <th>Integer</th>
+                        <th>Float</th>
+                    </tr>
+                </thead>
+                <tbody id="registers-data">
+                    <!-- Register data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <div class="controls">
+            <h2>Controls</h2>
+            <div class="control-buttons">
+                <button onclick="loadMachineCode()">Load</button>
+                <button onclick="resetVM()">Reset</button>
+                <button onclick="doStep()">Step</button>
+                <button onclick="runVM()">Run</button>
+            </div>
+            <div>
+                <label>Program Counter:</label>
+                <input type="text" id="program-counter" value="00" readonly>
+            </div>
+            <div>
+                <label>Instruction Register:</label>
+                <input type="text" id="instruction-register" value="0000" readonly>
+            </div>
+            <div>
+                <label>Opcode:</label>
+                <input type="text" id="opcode" value="0" readonly>
+            </div>
+            <div>
+                <label>Operands:</label>
+                <input type="text" id="operands" value="0,0,0" readonly>
+            </div>
+            <div>
+                <label>Speed:</label>
+                <input type="range" id="speed" min="0" max="100" value="50" onchange="updateSpeed()">
+            </div>
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="input-file">Upload Assembly Code File:</label>
+                <input type="file" id="input-file" name="input_file">
+                {% csrf_token %}
+                <button type="submit">Assemble</button>
+            </form>
+            <div class="assembly-machine-container">
+                <div>
+                    <label>Assembly Code:</label>
+                    <div id="assembly-code" class="scroll-box"></div>
+                </div>
+                <div>
+                    <label>Machine Code:</label>
+                    <div id="machine-code" class="scroll-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const memoryData = document.getElementById('memory-data');
+        const registersData = document.getElementById('registers-data');
+        const programCounter = document.getElementById('program-counter');
+        const instructionRegister = document.getElementById('instruction-register');
+        const opcode = document.getElementById('opcode');
+        const operands = document.getElementById('operands');
+        const assemblyCode = document.getElementById('assembly-code');
+        const machineCode = document.getElementById('machine-code');
+        let startTime;
+        let stepDelay = 500; // Default to 500ms per step
+
+        function updateUI(data) {
+            loadMemory(data.memory);
+            loadRegisters(data.registers);
+            programCounter.value = data.program_counter.toString(16).padStart(2, '0').toUpperCase();
+            instructionRegister.value = data.instruction_register.toString(16).padStart(4, '0').toUpperCase();
+            opcode.value = data.opcode.toString(16).toUpperCase();
+            operands.value = `${data.operands[0]}, ${data.operands[1]}, ${data.operands[2]}`;
+            if (data.halted) {
+                const endTime = performance.now();
+                const runningTime = (endTime - startTime) / 1000;
+                alert(`The virtual machine has halted. Running time: ${runningTime.toFixed(2)} seconds.`);
+            }
+        }
+
+        function loadMemory(memory) {
+            memoryData.innerHTML = '';
+            memory.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index.toString(16).padStart(2, '0').toUpperCase()}</td>
+                    <td>${item.toString(2).padStart(8, '0')}</td>
+                    <td>${item.toString(16).padStart(2, '0').toUpperCase()}</td>
+                    <td>${item}</td>
+                    <td>${parseFloat(item).toFixed(3)}</td>
+                `;
+                memoryData.appendChild(row);
+            });
+        }
+
+        function loadRegisters(registers) {
+            registersData.innerHTML = '';
+            registers.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index.toString(16).toUpperCase()}</td>
+                    <td>${item.toString(2).padStart(8, '0')}</td>
+                    <td>${item.toString(16).padStart(2, '0').toUpperCase()}</td>
+                    <td>${item}</td>
+                    <td>${parseFloat(item).toFixed(3)}</td>
+                `;
+                registersData.appendChild(row);
+            });
+        }
+
+        function loadMachineCode() {
+            fetch('/api/vmonline4/load/')
+                .then(response => response.json())
+                .then(data => {
+                    updateUI(data);
+                    alert("Machine code loaded successfully.");
+                });
+        }
+
+        function resetVM() {
+            fetch('/api/vmonline4/reset/')
+                .then(response => response.json())
+                .then(data => {
+                    updateUI(data);
+                    alert("Virtual machine reset successfully.");
+                });
+        }
+
+        function doStep() {
+            fetch('/api/vmonline4/step/')
+                .then(response => response.json())
+                .then(data => updateUI(data));
+        }
+
+        async function runVM() {
+            startTime = performance.now();
+            while (true) {
+                const response = await fetch('/api/vmonline4/step/');
+                const data = await response.json();
+                updateUI(data);
+                if (data.halted) break;
+                await new Promise(resolve => setTimeout(resolve, stepDelay));
+            }
+        }
+
+        function updateSpeed() {
+            const speedRange = document.getElementById('speed');
+            const speedValue = parseInt(speedRange.value, 10);
+            stepDelay = (100 - speedValue) * 10; // 0ms to 1000ms delay
+        }
+
+        function displayAssemblyCode(code) {
+            assemblyCode.textContent = code;
+        }
+
+        function displayMachineCode(code) {
+            machineCode.textContent = code;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.getElementById('input-file').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                displayAssemblyCode(content);
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const inputFile = document.getElementById('input-file').files[0];
+            formData.append('input_file', inputFile);
+
+            const csrftoken = getCookie('csrftoken');
+            fetch('/api/upload_file/', {
+                method: 'POST',
+                headers: {'X-CSRFToken': csrftoken},
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'assembled') {
+                    console.log('Machine code:', data.machine_code);
+                    displayMachineCode(data.machine_code);
+                    alert('File uploaded and assembled successfully!');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the file.');
+            });
+        });
+
+        window.onload = resetVM;
+    </script>
+</body>
+</html>
