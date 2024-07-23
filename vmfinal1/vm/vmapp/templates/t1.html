@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brookshear VM</title>
-    <style>
+            <header>
+                 <h1> JBrookshearMachine 1.5.1 </h1>
+                <div class="information" align="right">
+                    <button id="instructionsBtn">Instructions</button>
+                    <button id="helpBtn">Help</button>
+                    <button id="assemblerHelpBtn">Assembler help</button>
+                </div>
+            </header>
+
+       <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -101,7 +110,7 @@
         }
     </style>
 </head>
-<body>
+<main>
     <div class="container">
         <div class="memory">
             <h2>Memory</h2>
@@ -344,5 +353,5 @@
 
         window.onload = resetVM;
     </script>
-</body>
+    </main>
 </html>
