@@ -1,31 +1,37 @@
-# vmapp/scripts/asm3.py
-
+from icecream import ic 
+import os
 class Assembler:
     def __init__(self):
         self.memory = [0] * 256  # Example memory size of 256 bytes
         self.registers = [0] * 16  # Example register count of 16
+        self.labels = {}
         self.instructions = {
             "NOP": 0x0,
             "LOAD": 0x1,
             "LOADI": 0x2,
             "STORE": 0x3,
             "ADD": 0x4,
-            "ADDS": 0x5,
-            "ADDF": 0x6,
-            "OR": 0x7,
-            "AND": 0x8,
-            "XOR": 0x9,
-            "SHR": 0xA,
+            "SUB": 0x4,
             "JMP": 0xB,
-            "HALT": 0xC,
-            "LOADS": 0xD,
-            "STORES": 0xE,
-            "JUMPT": 0xF,
+            "JZ": 0xB,
+            "HALT": 0xC
         }
 
     def parse_line(self, line):
         parts = line.split()
         instr = parts[0].upper()
+        ic(parts)
+        ic(instr)
+        os.system('pause')
+
+        if instr.endswith(':'):
+            label = instr[:-1]
+            ic(label)
+            ic(len(self.memory))            
+            self.labels[label] = len(self.memory) // 2
+            ic(self.labels[label])
+            os.system('pause')
+            return None  # It's a label, no machine code
 
         if instr == "NOP":
             return "0x0000"
@@ -37,55 +43,57 @@ class Assembler:
             x = (xy & 0xF0) >> 4
             y = xy & 0x0F
             return f"0x{self.instructions[instr]:X}{r:X}{x:X}{y:X}"
-        elif instr in {"ADD", "ADDS", "ADDF", "OR", "AND", "XOR"}:
+        elif instr in {"ADD", "SUB"}:
             r = int(parts[1][1], 16)
             s = int(parts[2][1], 16)
             t = int(parts[3][1], 16)
             return f"0x{self.instructions[instr]:X}{r:X}{s:X}{t:X}"
-        elif instr == "SHR":
-            r = int(parts[1][1], 16)
-            x = int(parts[2], 16)
-            return f"0x{self.instructions[instr]:X}{r:X}{x:X}0"
         elif instr == "JMP":
-            xy = int(parts[1], 16)
-            x = (xy & 0xF0) >> 4
-            y = xy & 0x0F
-            return f"0x{self.instructions[instr]:X}0{x:X}{y:X}"
-        elif instr in {"LOADS", "STORES"}:
-            r = int(parts[1][1], 16)
-            s = int(parts[2][1], 16)
-            return f"0x{self.instructions[instr]:X}0{r:X}{s:X}"
-        elif instr == "JUMPT":
-            t = int(parts[1][1], 16)
-            return f"0x{self.instructions[instr]:X}00{t:X}"
+            addr = self.labels.get(parts[1], int(parts[1], 16))
+            x = (addr & 0xF0) >> 4
+            y = addr & 0x0F
+            return f"0xB0{x:X}{y:X}"
+        elif instr == "JZ":
+            addr = self.labels[parts[1]]
+            return f"0xB{addr >> 4:X}{addr & 0x0F:X}"
         else:
             raise ValueError(f"Unknown instruction: {instr}")
 
     def assemble(self, asm_code):
         machine_code = []
         lines = asm_code.strip().split('\n')
+        # First pass to collect labels
         for line in lines:
             line = line.strip()
-            if line and not line.startswith(';'):  # Skip empty lines and comments
-                mc = self.parse_line(line)
-                machine_code.append(mc)
-        return machine_code
+            if line and not line.startswith(';'):
+                self.parse_line(line)
 
-    def save_to_file(self, machine_code, filename):
-        with open(filename, 'w') as f:
-            for mc in machine_code:
-                f.write(mc + '\n')
+        # Second pass to generate machine code
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith(';'):
+                mc = self.parse_line(line)
+                if mc:
+                    machine_code.append(mc)
+        return machine_code
 
     def assemble_from_file(self, input_filename, output_filename):
         with open(input_filename, 'r') as f:
             asm_code = f.read()
         machine_code = self.assemble(asm_code)
-        self.save_to_file(machine_code, output_filename)
+        with open(output_filename, 'w') as f:
+            for code in machine_code:
+                f.write(code + '\n')
+
+    def get_memory(self):
+        return self.memory
+
+    def get_registers(self):
+        return self.registers
 
     def reset(self):
         self.memory = [0] * 256
         self.registers = [0] * 16
-
 
 if __name__ == '__main__':
     # Example usage:
@@ -93,6 +101,7 @@ if __name__ == '__main__':
     NOP
     LOADI R1, 3
     LOADI R2, 4
+    TEST:
     ADD R3, R1, R2
     STORE R3, 31
     LOADI R3, 1
@@ -105,7 +114,17 @@ if __name__ == '__main__':
     XOR R4, R5, R6
     STORE R4, 34
     SHR R4, 2 
-    STORE R4, 35    
+    STORE R4, 35
+    ; Clear display memory (0x80 to 0xFF)
+    LOADI R1, 80    ; Start address of display memory
+    LOADI R2, 0     ; Value to clear
+
+    CLEAR_LOOP:
+    STORE R2, R1    ; Clear memory at R1
+    ADD R1, R1, 1   ; Increment address
+    LOADI R3, FF    ; Load upper bound address
+    CMP R1, R3      ; Compare current address with upper bound
+    JLT CLEAR_LOOP  ; Jump to CLEAR_LOOP if R1 < FF
     HALT
     """
 

@@ -314,10 +314,6 @@
             machineCode.textContent = code;
         }
 
-        function stripComments(code) {
-            return code.split('\n').map(line => line.split(';')[0].trim()).filter(line => line.length > 0).join('\n');
-        }
-
         function editMemory(index, value) {
             const newValue = parseInt(value, 16);
             if (!isNaN(newValue)) {
@@ -395,8 +391,7 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
-                const strippedContent = stripComments(content);
-                displayAssemblyCode(strippedContent);
+                displayAssemblyCode(content);
             };
             reader.readAsText(file);
         });
