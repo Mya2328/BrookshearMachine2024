@@ -164,10 +164,12 @@ function syncRegisterFields(index, value, type) {
 }
 
 function loadMachineCode() {
-  const link= document.createElement("a");
-  link.download = ".txt";
-  link.href = displayCanvas.toDataURL("txt");
-  link.click();
+  fetch("/api/vmonline4/load/")
+    .then((response) => response.json())
+    .then((data) => {
+      updateUI(data);
+      alert("Machine code loaded successfully.");
+    });
 }
 
 function resetVM() {
@@ -382,6 +384,40 @@ window.onclick = function (event) {
   if (event.target == assemblerHelpModal) {
     assemblerHelpModal.style.display = "none";
   }
+};
+
+var assemblerHelperBtn1 = document.getElementById("assemblyHelperBtn1");
+var assemblerHelperBtn2 = document.getElementById("assemblyHelperBtn2");
+var assemblerHelperBtn3 = document.getElementById("assemblyHelperBtn3");
+
+assemblerHelperBtn1.onclick = function () {
+  helpModal.style.display = "none";
+  instructionsModal.style.display = "none";
+  assemblerHelpModal.style.display = "block";
+};
+assemblerHelperBtn2.onclick = function () {
+  helpModal.style.display = "none";
+  instructionsModal.style.display = "none";
+  assemblerHelpModal.style.display = "block";
+};
+assemblerHelperBtn3.onclick = function () {
+  helpModal.style.display = "none";
+  instructionsModal.style.display = "none";
+  assemblerHelpModal.style.display = "block";
+};
+
+var helperBtn1 = document.getElementById("helperBtn1");
+var helperBtn2 = document.getElementById("helperBtn2");
+
+helperBtn1.onclick = function () {
+  instructionsModal.style.display = "none";
+  assemblerHelpModal.style.display = "none";
+  helpModal.style.display = "block";
+};
+helperBtn2.onclick = function () {
+  instructionsModal.style.display = "none";
+  assemblerHelpModal.style.display = "none";
+  helpModal.style.display = "block";
 };
 
 window.onload = resetVM;

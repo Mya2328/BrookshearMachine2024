@@ -2,30 +2,36 @@
   <div class="modal-content">
     <span class="help-close">&times;</span>
 
-    <h1>Extended Brookshear Machine Emulator</h1>
+    <h1 id="index">Extended Brookshear Machine Emulator</h1>
     <p>
       This is an emulator for the machine described in
       <em>Computer Science: An Overview, 10th edition</em>, by J. Glenn
       Brookshear (Pearson Education, 2008). It is extended with three additional
-      instructions and the machine is equipped with a bitmapped display. The
-      machine may be programmed by entering machine code into the emulator, or
-      using assembly language.
+      instructions and the machine is equipped with a bitmapped display.
+    </p>
+    <p>
+      The machine may be programmed by entering machine code into the emulator,
+      or using <button id="assemblyHelperBtn1" class="link-btn">assembly language</button>.
     </p>
 
     <h2>Contents</h2>
     <ul>
-                    <li><a href="#machine-architecture">Machine architecture</a></li>
-                    <li><a href="#instruction-set">Instruction set</a></li>
-                    <li><a href="#main-memory-panel">Main memory panel</a></li>
-                    <li><a href="#saving-loading-memory">Saving and loading memory</a></li>
-                    <li><a href="#compiling-loading-assembly">Compiling and loading assembly language programs</a></li>
-                    <li><a href="#register-panel">Register panel</a></li>
-                    <li><a href="#information-panel">Information panel</a></li>
-                    <li><a href="#cpu-controls-panel">CPU controls panel</a></li>
-                    <li><a href="#bitmapped-display">The bitmapped display</a></li>
+      <li><a href="#machine">Machine architecture</a></li>
+      <li><a href="#instruction">Instruction set</a></li>
+      <li><a href="#main-memory">Main memory panel</a></li>
+      <li><a href="#saving">Saving and loading memory</a></li>
+      <li>
+        <a href="#compiling"
+          >Compiling and loading assembly language programs</a
+        >
+      </li>
+      <li><a href="#register">Register panel</a></li>
+      <li><a href="#information">Information panel</a></li>
+      <li><a href="#cpu">CPU controls panel</a></li>
+      <li><a href="#bitmapped">The bitmapped display</a></li>
     </ul>
 
-    <h2>Machine architecture</h2>
+    <h2 id="machine">Machine architecture</h2>
     <p>
       Main memory has 256 cells with addresses from <code>00</code> to
       <code>FF</code> (hex). Each cell holds 1 byte (8 bits) of data.
@@ -40,7 +46,7 @@
       instruction, unless a jump has taken place.
     </p>
 
-    <h2>Instruction set</h2>
+    <h2 id="instruction">Instruction set</h2>
     <p>
       Each instruction occupies 2 consecutive bytes of memory, and is written as
       4 hex digits. The first digit represents the opcode; the other three
@@ -56,75 +62,75 @@
     </p>
 
     <pre>
-        0FFF
-        No operation. Carry on to the next instruction. The data fields must all be F.
+0FFF
+<strong>No operation.</strong> Carry on to the next instruction. The data fields must all be F.
 
-        1rxy
-        Load from memory (direct addressing). Copy the data at memory address xy into register r.
+1rxy
+<strong>Load</strong> from memory (direct addressing). Copy the data at memory address xy into register r.
 
-        2rxy
-        Load value (immediate addressing). Copy xy into register r.
+2rxy
+<strong>Load</strong> value (immediate addressing). Copy xy into register r.
 
-        3rxy
-        Store (direct addressing). Copy the contents of register r into memory at address xy.
+3rxy
+<strong>Store</strong> (direct addressing). Copy the contents of register r into memory at address xy.
 
-        40rs
-        Move. Copy the contents of register r into register s.
+40rs
+<strong>Move.</strong> Copy the contents of register r into register s.
 
-        5rst
-        Add as integers. Add the contents of register s to the contents of register t as twos complement integers. Put the result into register r.
+5rst
+<strong>Add</strong> as integers. Add the contents of register s to the contents of register t as twos complement integers. Put the result into register r.
 
-        6rst
-        Add as floats. Add the contents of register s to the contents of register t as floating point values. Put the result into register r. The floating point format is SEEEMMMM where S is the sign bit (1 for negative), EEE is the exponent in 3-bit excess format, and MMMM is the mantissa.
+6rst
+<strong>Add</strong> as floats. Add the contents of register s to the contents of register t as floating point values. Put the result into register r. The floating point format is SEEEMMMM where S is the sign bit (1 for negative), EEE is the exponent in 3-bit excess format, and MMMM is the mantissa.
 
-        7rst
-        OR. Carry out the bitwise OR operation on the contents of register s and the contents of register t. Put the result into register r.
+7rst
+<strong>OR.</strong> Carry out the bitwise OR operation on the contents of register s and the contents of register t. Put the result into register r.
 
-        8rst
-        AND. Carry out the bitwise AND operation on the contents of register s and the contents of register t. Put the result into register r.
+8rst
+<strong>AND.</strong> Carry out the bitwise AND operation on the contents of register s and the contents of register t. Put the result into register r.
 
-        9rst
-        XOR. Carry out the bitwise exclusive or operation on the contents of register s and the contents of register t. Put the result into register r.
+9rst
+<strong>XOR.</strong> Carry out the bitwise exclusive or operation on the contents of register s and the contents of register t. Put the result into register r.
 
-        Ar0x
-        Rotate the contents of register r by x bits to the right. Update register r with the result.
+Ar0x
+<strong>Rotate</strong> the contents of register r by x bits to the right. Update register r with the result.
 
-        B0xy
-        Jump to memory location xy. That is, the program counter is set to xy just before the next instruction is executed. Note that this is really a special case of the next instruction.
+B0xy
+<strong>Jump</strong> to memory location xy. That is, the program counter is set to xy just before the next instruction is executed. Note that this is really a special case of the next instruction.
 
-        Brxy
-        Jump if equal. If the contents of register r equal the contents of register 0, jump to memory location xy.
+Brxy
+<strong>Jump</strong> if equal. If the contents of register r equal the contents of register 0, jump to memory location xy.
 
-        C000
-        Halt. Stop execution.
+C000
+<strong>Halt.</strong> Stop execution.
 
-        D0rs
-        Load from memory (register indirect addressing). Copy the data from the memory location whose address is in register s. Place it in register r.
-        For example, if register s contains the value 86, and memory location 86 contains the value 7B, register r will be given the value 7B.
+D0rs
+<strong>Load</strong> from memory (register indirect addressing). Copy the data from the memory location whose address is in register s. Place it in register r.
+For example, if register s contains the value 86, and memory location 86 contains the value 7B, register r will be given the value 7B.
 
-        E0rs
-        Store in memory (register indirect addressing). Copy the data from register r. Place it in the memory location whose address is in register s.
-        For example, if register r contains the value EC, and register s contains the value 41, the value EC will be placed in memory at address 41.
+E0rs
+<strong>Store</strong> in memory (register indirect addressing). Copy the data from register r. Place it in the memory location whose address is in register s.
+For example, if register r contains the value EC, and register s contains the value 41, the value EC will be placed in memory at address 41.
 
-        F00t
-        Jump to register address. Jump to the memory address stored in register t. That is, the contents of register t are copied to the program counter. Note that this is really a special case of the next instruction.
+F00t
+<strong>Jump</strong> to register address. Jump to the memory address stored in register t. That is, the contents of register t are copied to the program counter. Note that this is really a special case of the next instruction.
 
-        Frxt
-        Jump to register address with test. The contents of register r are compared to the contents of register 0 using a test which depends on x. If the result of the test is true, a jump is made to the memory address stored in register t.
-        The allowable values of x and the corresponding tests are:
-            x       Jump if
-            -       -------
-            0       Rr == R0 (equal)
-            1       Rr != R0 (not equal)
-            2       Rr >= R0 (greater than or equal)
-            3       Rr <= R0 (less than or equal)
-            4       Rr > R0  (greater than)
-            5       Rr < R0  (less than)
-        The register values are treated as unsigned integers for the comparisons.
-        For example, if the command is FA4B, then if the value of register A is greater than the value of register 0, the program will jump to the instruction whose address is stored in register B.
+Frxt
+<strong>Jump</strong> to register address with test. The contents of register r are compared to the contents of register 0 using a test which depends on x. If the result of the test is true, a jump is made to the memory address stored in register t.
+The allowable values of x and the corresponding tests are:
+    x       Jump if
+    -       -------
+    0       Rr == R0 (equal)
+    1       Rr != R0 (not equal)
+    2       Rr >= R0 (greater than or equal)
+    3       Rr <= R0 (less than or equal)
+    4       Rr > R0  (greater than)
+    5       Rr < R0  (less than)
+The register values are treated as unsigned integers for the comparisons.
+For example, if the command is FA4B, then if the value of register A is greater than the value of register 0, the program will jump to the instruction whose address is stored in register B.
     </pre>
 
-    <h2>Main memory panel</h2>
+    <h2 id="main-memory">Main memory panel</h2>
     <p>
       Each column of the display gives a different view of the memory contents.
       All the entries in a row are different ways of showing the same underlying
@@ -156,7 +162,7 @@
       counter is set to an odd value, the text is shown against odd memory
       locations.) The text can be switched between an informal description of
       the action carried out by the instruction and assembly language (as
-      defined here) using the radio buttons at the bottom of the panel.
+      defined <a href="#index">here</a>) using the radio buttons at the bottom of the panel.
     </p>
     <p>
       Thirty-two memory locations are displayed. To move through memory, use the
@@ -168,7 +174,7 @@
       locations.
     </p>
 
-    <h2>Saving and loading memory</h2>
+    <h2 id="saving">Saving and loading memory</h2>
     <p>
       The <strong>Save in file</strong> button allows you to store the current
       contents of memory in a file. Only memory locations which contain non-zero
@@ -191,11 +197,9 @@
       The format of a memory file is as follows. The file is structured into
       lines which are loaded in order. Each line can have three parts:
     </p>
-    <ul>
-      <li><strong>ADDRESS</strong></li>
-      <li><strong>DATA</strong></li>
-      <li><strong>COMMENT</strong></li>
-    </ul>
+    <pre>
+      <strong>ADDRESS</strong>    <strong>DATA</strong>    <strong>COMMENT</strong>
+    </pre>
     <p>
       Each of these may be omitted. Any white space (spaces or tabs) is ignored.
     </p>
@@ -238,16 +242,16 @@
       and addresses:
     </p>
     <pre>
-        // Brookshear Machine memory
-        00: 2000 // Load register 0 with value 00
-        02: 2101 // Load register 1 with value 01
-        04: 5001 // Put reg 0 + reg 1 (ints) in reg 0
-        06: B004 // Jump to 04
+// Brookshear Machine memory
+00: 2000 // Load register 0 with value 00
+02: 2101 // Load register 1 with value 01
+04: 5001 // Put reg 0 + reg 1 (ints) in reg 0
+06: B004 // Jump to 04
     </pre>
 
-    <h2>Compiling and loading assembly language programs</h2>
+    <h2 id="compiling">Compiling and loading assembly language programs</h2>
     <p>
-      BM programs may be written in assembly language, described here. The
+      BM programs may be written in assembly language, described <a href="#index">here</a>. The
       <strong>Assemble and load</strong> button in the main memory panel allows
       you to specify a file containing an assembly language program. This will
       be read and if it compiles without error the machine code will be loaded
@@ -262,11 +266,11 @@
       <strong>Load from file</strong> button.
     </p>
     <p>
-      The assembly language description may be accessed using the
-      <strong>Assembler help</strong> button.
+      The <button id="assemblyHelperBtn2"  class="link-btn">assembly language description</button> may be
+      accessed using the <strong>Assembler help</strong> button.
     </p>
 
-    <h2>Register panel</h2>
+    <h2 id="register">Register panel</h2>
     <p>
       The registers are displayed in the same way as the main memory. However,
       the fields for the general purpose registers can not be edited: the only
@@ -281,7 +285,7 @@
       counter to <code>00</code>. It does not affect main memory.
     </p>
 
-    <h2>Information panel</h2>
+    <h2 id="information">Information panel</h2>
     <p>
       The <strong>List instructions</strong> button displays a condensed list of
       the machine instructions for quick reference.
@@ -290,12 +294,12 @@
       The <strong>Help</strong> button displays the information you are reading.
     </p>
     <p>
-      The <strong>Assembly help</strong> button displays assembly language
-      information.
+      The <strong>Assembly help</strong> button displays
+      <button id="assemblyHelperBtn3"  class="link-btn">assembly language information</button>.
     </p>
     <p>Error messages are displayed in the area below the buttons.</p>
 
-    <h2>CPU controls panel</h2>
+    <h2 id="cpu">CPU controls panel</h2>
     <p>
       The <strong>Step</strong> button executes the next instruction (the
       instruction at the address in the program counter).
@@ -323,7 +327,7 @@
       steps when the machine is running. It may be adjusted during execution.
     </p>
 
-    <h2>The bitmapped display</h2>
+    <h2 id="bitmapped">The bitmapped display</h2>
     <p>
       This particular machine has a bitmapped display attached to it. When the
       display has been activated by pressing the
@@ -353,13 +357,13 @@
       display.
     </p>
     <pre>
-        80:7 80:6 80:5 80:4 80:3 80:2 80:1 80:0 81:7 ... 83:2 83:1 83:0
-        84:7 84:6 ...                                     ... 87:1 87:0
-        88:7 88:6 ...                                     ... 8B:1 8B:0
-        ...                                                       ...
-        ...                                                       ...
-        F8:7 F8:6 ...                                     ... FB:1 FB:0
-        FC:7 FC:6 FC:5 ... FE:0 FF:7 FF:6 FF:5 FF:4 FF:3 FF:2 FF:1 FF:0
+80:7 80:6 80:5 80:4 80:3 80:2 80:1 80:0 81:7 ... 83:2 83:1 83:0
+84:7 84:6 ...                                     ... 87:1 87:0
+88:7 88:6 ...                                     ... 8B:1 8B:0
+...                                                       ...
+...                                                       ...
+F8:7 F8:6 ...                                     ... FB:1 FB:0
+FC:7 FC:6 FC:5 ... FE:0 FF:7 FF:6 FF:5 FF:4 FF:3 FF:2 FF:1 FF:0
     </pre>
     <p>
       The display is updated whenever memory is changed, either by a program or
@@ -372,7 +376,7 @@
       format and entering a file name in the pop-up window.
     </p>
 
-    <footer>
+    <footer class="modal-footer">
       <p>Published with JAVA® 1.7</p>
     </footer>
   </div>

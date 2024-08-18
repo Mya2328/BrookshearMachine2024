@@ -7,32 +7,35 @@
       This is an assembler for the machine described in
       <em>Computer Science: An Overview</em>, 10th edition, by J. Glenn
       Brookshear (Pearson Education, 2008). The machine is extended with three
-      additional instructions. For information about the machine architecture,
-      see help information for the emulator.
+      additional instructions.
+    </p>
+    <p>
+      For information about the machine architecture, see
+      <button id="helperBtn1" class="link-btn">help information</button> for the emulator.
     </p>
 
     <h2>Contents</h2>
     <ul>
-      <li><a href=#assembler-conventions">Conventions</li>
-      <li><a href=#assembler-fileformet">File format</li>
-      <li><a href=#assembler-assemblyandloadingprocess">Assembly and loading process</li>
-      <li><a href=#assembler-MOVinstruction">MOV instruction</li>
-      <li><a href=#assembler-registeroperationinstructions">Register operation instructions</li>
-      <li><a href=#assembler-controlinstructions">Control instructions</li>
-      <li><a href=#assembler-DATAinstruction">DATA instruction</li>
-      <li><a href=#assembler-addressesandlabels">Addresses and Labels</li>
-      <li><a href=#assembler-example">Example</li>
+      <li><a href="#conventions">Conventions</a></li>
+      <li><a href="#file-format">File format</a></li>
+      <li><a href="#assembly">Assembly and loading process</a></li>
+      <li><a href="#mov">MOV instruction</a></li>
+      <li><a href="#register">Register operation instructions</a></li>
+      <li><a href="#control">Control instructions</a></li>
+      <li><a href="#data">DATA instruction</a></li>
+      <li><a href="#address">Addresses and Labels</a></li>
+      <li><a href="#example">Example</a></li>
     </ul>
 
-    <h2 id="assembler-conventions">Conventions</h2>
+    <h2 id="conventions">Conventions</h2>
     <p>
       Text in italics in a format is a placeholder: it needs to be replaced with
       an appropriate character sequence to make a legal instruction. The
-      characters m, n, p, x and y stand for hex characters. Hex characters are
-      0-9, A-F, and a-f.
+      characters m, n, p, x and y stand for hex characters.
     </p>
+    <p>Hex characters are 0-9, A-F, and a-f.</p>
 
-    <h2 id="assembler-fileformet">File format</h2>
+    <h2 id="file-format">File format</h2>
     <p>
       The assembly language file is a plain text file and can be prepared using
       a text editor such as the Matlab editor, WordPad, Notepad, Emacs, or vi.
@@ -65,12 +68,12 @@
       location and a comment, and the third has only an instruction:
     </p>
     <pre>
-        loop:   ADDI R1, R2 -> R3   // increment loop counter
-        A0:     // next instruction will be loaded at location A0
-        ROT  R1, 4
+loop:   ADDI R1, R2 -> R3   // increment loop counter
+A0:     // next instruction will be loaded at location A0
+ROT  R1, 4
     </pre>
 
-    <h2 id="assembl-assemblyandloadingprocess">Assembly and loading process</h2>
+    <h2 id="assembly">Assembly and loading process</h2>
     <p>
       Each assembly language instruction, except DATA, is translated into a
       single Brookshear Machine (BM) instruction. The code for this instruction
@@ -86,10 +89,10 @@
     <p>
       The output of the assembler can be loaded directly into memory or saved as
       a machine code file, which may then be loaded. These options are described
-      in the general help for the emulator.
+      in the <button id="helperBtn2" class="link-btn">general help for the emulator</button>.
     </p>
 
-    <h2 id="assembler-MOVinstruction">MOV instruction</h2>
+    <h2 id="mov">MOV instruction</h2>
     <p>
       The MOV instruction moves (or more precisely copies) a byte of data from
       one location to another. Its general format is:
@@ -101,7 +104,7 @@
       are legal, as follows.
     </p>
 
-    <h3>MOV value -> Rn</h3>
+    <h3>MOV <span class="subtitle-text">value -> Rn</span></h3>
     <p>
       The value is fixed when the assembly language is written, and it is stored
       in memory as part of the program. (This is immediate-mode addressing.) It
@@ -142,57 +145,53 @@
     <p>
       The destination must be a register. This is written as <em>Rn</em> where
       <em>n</em> is a hex character that specifies which register receives the
-      data.
+      data. (BM opcode: 2.)
     </p>
-    <p>(BM opcode: 2.)</p>
 
-    <h3>MOV Rm -> Rn</h3>
+    <h3>MOV <span class="subtitle-text">Rm -> Rn</span></h3>
     <p>
       The value held in register Rm is copied to register Rn, where m and n
-      specify the source and destination registers respectively.
+      specify the source and destination registers respectively. (BM opcode: 4.)
     </p>
-    <p>(BM opcode: 4.)</p>
 
-    <h3>MOV [xy] -> Rn</h3>
+    <h3>MOV <span class="subtitle-text">[xy] -> Rn</span></h3>
     <p>
       The value held in the memory cell with address xy is loaded into register
       Rn. A label may be used instead of an explicit address. (The source is
-      specified using direct addressing.)
+      specified using direct addressing.) (BM opcode: 1.)
     </p>
-    <p>(BM opcode: 1.)</p>
 
-    <h3>MOV Rn -> [xy]</h3>
+    <h3>MOV <span class="subtitle-text">Rn -> [xy]</span></h3>
     <p>
       The value held in register Rn is stored in the memory cell with address
       xy. A label may be used instead of an explicit address. (The destination
-      uses direct addressing.)
+      uses direct addressing.) (BM opcode: 3.)
     </p>
-    <p>(BM opcode: 3.)</p>
 
-    <h3>MOV [Rm] -> Rn</h3>
+    <h3>MOV <span class="subtitle-text">[Rm] -> Rn</span></h3>
     <p>
       The value held in the memory cell whose address is in register Rm is
       loaded into register Rn. (The source uses register indirect addressing.)
+      (BM opcode: D.)
     </p>
-    <p>(BM opcode: D.)</p>
 
-    <h3>MOV Rn -> [Rm]</h3>
+    <h3>MOV <span class="subtitle-text">Rn -> [Rm]</span></h3>
     <p>
       The value held in register Rn is stored in the memory cell whose address
       is in register Rm. (The destination uses register indirect addressing.)
+      (BM opcode: E.)
     </p>
-    <p>(BM opcode: E.)</p>
 
-    <h2 id="assembler-registeroperationinstructions">Register operation instructions</h2>
-    <h3>ROT Rn, x</h3>
+    <h2 id="register">Register operation instructions</h2>
+    <h3>ROT <span class="subtitle-text">Rn, x</span></h3>
     <p>
       The bit pattern in register Rn is rotated x bits to the right. For
       example, if x is 1, the rightmost bit is moved to the left and every other
       bit is moved 1 place to the right: 00010001 becomes 10001000 and 01011011
       becomes 10101101. Higher values of x are equivalent to repeating this
-      process x times altogether. Rn is updated to contain the new pattern.
+      process x times altogether. Rn is updated to contain the new pattern. (BM
+      opcode: A.)
     </p>
-    <p>(BM opcode: A.)</p>
 
     <p>
       Each of the remaining register instructions represents an operation with
@@ -200,116 +199,263 @@
     </p>
     <pre>OP Rn, Rm -> Rp</pre>
     <p>
-      OP specifies the operation to be carried out. Registers Rn and Rm contain
-      the source data, and register Rp is the destination in which the result of
-      the operation is stored. Any pair, or all three, of m, n, and p may be the
-      same.
+      <em>OP</em> specifies the operation to be carried out. Registers Rn and Rm
+      contain the source data, and register Rp is the destination in which the
+      result of the operation is stored. Any pair, or all three, of m, n, and p
+      may be the same.
     </p>
 
-    <h3>ADDI Rn, Rm -> Rp</h3>
+    <h3>ADDI <span class="subtitle-text">Rn, Rm -> Rp</span></h3>
     <p>
       The contents of Rn and Rm are added, assuming that they represent signed
-      integers in twos complement format.
+      integers in twos complement format. (BM opcode: 5.)
     </p>
-    <p>(BM opcode: 5.)</p>
 
-    <h3>ADDF Rn, Rm -> Rp</h3>
+    <h3>ADDF <span class="subtitle-text">Rn, Rm -> Rp</span></h3>
     <p>
       The contents of Rn and Rm are added, assuming that they represent floating
       point numbers in the format described in the emulator help document and in
-      <em>Computer Science: An Overview</em>.
-    </p>
-    <p>(BM opcode: 9.)</p>
-
-    <h3>AND Rn, Rm -> Rp</h3>
-    <p>
-      The contents of Rn and Rm are combined in a bitwise AND operation, with
-      corresponding bits in the result set to 1 if and only if both of the
-      corresponding bits in Rn and Rm are 1.
-    </p>
-    <p>(BM opcode: 6.)</p>
-
-    <h3>OR Rn, Rm -> Rp</h3>
-    <p>
-      The contents of Rn and Rm are combined in a bitwise OR operation, with
-      corresponding bits in the result set to 1 if and only if at least one of
-      the corresponding bits in Rn or Rm is 1.
-    </p>
-    <p>(BM opcode: 7.)</p>
-
-    <h3>CLR Rn</h3>
-    <p>Sets all bits in register Rn to 0.</p>
-    <p>(BM opcode: 0.)</p>
-
-    <h2 id="assembler-controlinstructions">Control instructions</h2>
-    <h3>JMP xy</h3>
-    <p>
-      Sets the instruction counter to xy. The next instruction to be executed
-      will be the one stored at this address. A label may be used instead of an
-      explicit address.
-    </p>
-    <p>(BM opcode: B.)</p>
-
-    <h3>JMS xy</h3>
-    <p>
-      Jumps to address xy in the same way as JMP. It also saves the address of
-      the next instruction in register F so that the subroutine called can
-      return to it by jumping to the location held in F.
-    </p>
-    <p>(BM opcode: C.)</p>
-
-    <h3>JZ Rn, xy</h3>
-    <p>
-      If the value in register Rn is zero, jumps to address xy. A label may be
-      used instead of an explicit address.
-    </p>
-    <p>(BM opcode: 8.)</p>
-
-    <h2 id="assembler-DATAinstruction">DATA instruction</h2>
-    <p>
-      The DATA instruction loads bytes into consecutive memory cells, starting
-      at the specified address. Its general format is:
-    </p>
-    <pre>DATA xy: value</pre>
-    <p>
-      The address may be specified either explicitly or by a label, as in any
-      other instruction. The value is specified using any of the forms allowed
-      for the source operand in the MOV instruction. It may consist of a list of
-      such values, separated by commas, in which case the values are loaded into
-      successive locations starting with xy. For example, the instruction:
-    </p>
-    <pre>DATA 20: "h", 35h, 5</pre>
-    <p>
-      loads the ASCII code for "h" into location 20, hexadecimal 35 into
-      location 21, and a binary 00000101 into location 22.
-    </p>
-    <p>
-      The default starting address is the next free cell. This is the location
-      that would be used for a normal instruction if one were encountered.
+      <em>Computer Science: An Overview</em>. (BM opcode: 6.)
     </p>
 
-    <h2 id="assembler-addressesandlabels">Addresses and Labels</h2>
+    <h3>OR <span class="subtitle-text">Rn, Rm -> Rp</span></h3>
     <p>
-      Memory addresses may be written as two hex digits. The instruction is
-      loaded starting at the specified address.
-    </p>
-    <p>
-      A label is a name for an address. Labels may be used as arguments in MOV,
-      JMP, JMS, and JZ instructions. The address that the label represents is
-      the location to which it was attached. Labels must be followed by a colon
-      when they appear on a line by themselves.
+      A bitwise OR operation is carried out. That is, each bit of Rp is 1 if
+      either of the corresponding bits in Rn and Rm is 1. (BM opcode: 7.)
     </p>
 
-    <h2 id="assembler-example">Example</h2>
+    <h3>AND <span class="subtitle-text">Rn, Rm -> Rp</span></h3>
+    <p>A bitwise AND operation is carried out. (BM opcode: 8.)</p>
+
+    <h3>XOR <span class="subtitle-text">Rn, Rm -> Rp</span></h3>
+    <p>A bitwise XOR operation is carried out. (BM opcode: 9.)</p>
+
+    <h2 id="control">Control instructions</h2>
     <p>
-      The following example adds three numbers stored in locations 1A, 1B, and
-      1C and stores the result in location 20:
+      Jump instructions cause the program counter to be set to the specified
+      address, so that the next instruction executed is the one at that address.
+    </p>
+
+    <h3>JMP <span class="subtitle-text">xy</span></h3>
+    <p>
+      Jump to address xy (2 hex digits). The address xy can also be a label -
+      see the section on addresses and labels. (BM opcode: B.)
+    </p>
+
+    <h3>JMP <span class="subtitle-text">Rn</span></h3>
+    <p>Jump to the address that is held in register Rn. (BM opcode: F.)</p>
+
+    <h3>JMPEQ <span class="subtitle-text">xy, Rm</span></h3>
+    <p>
+      Jump to address xy, if the contents of register Rm are equal to the
+      contents of register R0; otherwise, continue to the next instruction in
+      sequence. The address xy can be a label. (BM opcode: B.)
+    </p>
+
+    <h3>JMPEQ <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump to the address held in register Rn, if the contents of register Rm
+      are equal to the contents of register R0; otherwise, continue to the next
+      instruction in sequence. (BM opcode: F.)
+    </p>
+    <p>
+      The remaining jump instructions all have the same form as this and are all
+      implemented with BM opcode F.
+    </p>
+
+    <h3>JMPNE <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump to the address in Rn if the contents of Rm are not equal to the
+      contents of R0.
+    </p>
+
+    <h3>JMPGE <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump if the contents of Rm are greater than or equal to the contents of
+      R0, comparing them as unsigned integers.
+    </p>
+
+    <h3>JMPLE <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump if the contents of Rm are less than or equal to the contents of R0,
+      comparing them as unsigned integers.
+    </p>
+
+    <h3>JMPGT <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump if the contents of Rm are greater than the contents of R0, comparing
+      them as unsigned integers.
+    </p>
+
+    <h3>JMPLT <span class="subtitle-text">Rn, Rm</span></h3>
+    <p>
+      Jump if the contents of Rm are less than the contents of R0, comparing
+      them as unsigned integers.
+    </p>
+
+    <h3>NOP</h3>
+    <p>
+      No operation. This instruction occupies two memory cells, but no actions
+      take place when it is executed. (BM opcode: 0.)
+    </p>
+
+    <h3>HALT</h3>
+    <p>Halt the machine. (BM opcode: C.)</p>
+
+    <h2 id="data">DATA instruction</h2>
+    <p>
+      The DATA instruction does not translate into a BM instruction, but instead
+      causes data to be loaded into memory alongside the program.
+    </p>
+    <p>
+      If no explicit address is given in a location field, the data are loaded
+      starting at the next free memory location - i.e. at the location that
+      would otherwise be used for the next BM instruction. Since the BM starts
+      execution at address 0, this means that in most cases DATA statements
+      should come after the program.
+    </p>
+    <p>The instruction has two forms.</p>
+
+    <h3>DATA <span class="subtitle-text">values</span></h3>
+    <p>
+      Here values is a list separated by commas and optional white space. Each
+      element of the list is data for one byte of memory, and may be specified
+      in any of the ways listed for the first form of the MOV instruction. For
+      example
+    </p>
+    <pre>DATA -123, "s", DE</pre>
+    <p>
+      fills three bytes of memory with bit patterns representing the decimal
+      integer -123, the ASCII character s, and the hex number DE.
+    </p>
+
+    <h3>DATA <span class="subtitle-text">string</span></h3>
+    <p>
+      Here string is a sequence of ASCII characters surrounded by double quotes.
+      The character codes are stored in memory and then "null-terminated" - that
+      is, the byte after the last character is set to 00h. For example
+    </p>
+    <pre>DATA "Some text"</pre>
+    <p>
+      fills 10 bytes of memory, 9 with the character codes for Some text and one
+      with zero.
+    </p>
+    <p>
+      The double quote character may be included in the string. The following
+      example could therefore be ambiguous:
+    </p>
+    <pre>DATA "a","b"</pre>
+    <p>
+      In fact, it is interpreted as a single string - the five character codes
+      for the characters a " , " b are put into memory, followed by a zero. To
+      store the character codes for a and b, the following should be used:
+    </p>
+    <pre>DATA "ab"</pre>
+
+    <h2 id="address">Addresses and Labels</h2>
+    <p>
+      The location field can be used in two ways. First, an explicit address may
+      be given as two hex characters, for example
+    </p>
+    <pre>80: DATA "Text string"</pre>
+    <p>
+      This will cause the data to loaded starting from the memory cell with
+      address 80 (hex).
+    </p>
+    <p>
+      An address may be specified for any instruction, but its normal use is
+      with a DATA statement, to store data in a specific location.
+    </p>
+    <p>
+      Instructions or DATA statements that do not have addresses follow the
+      previous instruction or data in memory. Thus an explicit address affects
+      the position of subsequent instructions. For example
     </p>
     <pre>
-        MOV [1A] -> R0
-        ADDI [1B], R0 -> R0
-        ADDI [1C], R0 -> R0
-        MOV R0 -> [20]
+1C: DATA 1, 2
+    MOV R3 -> R4
+    </pre>
+    <p>causes the MOV statement to be stored at address 1E.</p>
+    <p>
+      An attempt to re-use a memory location will cause an error at assembly
+      time.
+    </p>
+    <p>
+      If an address is given in a statement that does not contain an
+      instruction, the address will be used for the next instruction (or data).
+    </p>
+    <p>
+      he second way to use the location field is for a <strong>label</strong>. A
+      label is a string of 4 or more characters starting with a letter. The
+      other characters may be letters, digits or underscores.
+    </p>
+    <p>
+      A label does not affect where anything is stored, but instead records the
+      current address. For example
+    </p>
+    <pre>loop: ADDI R1, R2 -> R3</pre>
+
+    <p>
+      causes the address of the ADDI instruction to be associated with the label
+      loop.
+    </p>
+    <p>
+      A label may be used instead of a memory address or value in MOV, JMP and
+      JMPEQ instructions - that is, wherever xy appears in an instruction format
+      above. Thus the address associated with a label may be moved to a
+      register, used as the source of a load or the destination of a store, or
+      as the target of a jump. For example
+    </p>
+    <pre>
+loop: ADDI R1, R2 -> R1
+      MOV R1 -> [R4]
+      JMP loop
+    </pre>
+    <p>causes the ADDI and MOV instructions to be repeated indefinitely.</p>
+    <p>
+      A reference to a label (its use as an argument to an instruction) may come
+      before or after the label itself. A label may be defined (that is, appear
+      in a location field) only once, but there may be any number of references
+      to it.
+    </p>
+
+    <h2 id="example">Example</h2>
+    <p>A program to draw a chessboard pattern in the bitmapped display.</p>
+    <p>// Generates chessboard pattern in the bitmap display</p>
+    <p>// R1 contains the address at which the next byte of data</p>
+    <p>// is to be stored, and is also the loop counter. It is</p>
+    <p>// incremented at the start of the loop so is initialised</p>
+    <p>// to the location just before the start of display memory.</p>
+    <p>// As there are 4 bytes per row of the display, and 4 rows of</p>
+    <p>// display per row of the chessboard pattern, there are 16</p>
+    <p>// bytes per chessboard row. This means that bit 4 of R1</p>
+    <p>// (bits numbered 76543210) indicates whether an even or odd row</p>
+    <p>// of the chessboard is being generated.</p>
+    <p>// R3 and R4 contain the two patterns to store in the display,</p>
+    <p>// depending on whether an odd or even row is being drawn.</p>
+
+    <pre>
+            MOV     [dispmem] -> R1
+            MOV     1 -> R2         // constant 1
+            MOV     [bwpatt] -> R3
+            MOV     [wbpatt] -> R4
+startloop:  ADDI    R1, R2 -> R1    // increment loop counter
+            MOV     R1 -> RA        // copy it
+            ROT     RA, 4           // shift bit 4 to end
+            AND     RA, R2 -> RA    // and mask it out
+            MOV     1 -> R0         // compare it with 1
+            JMPEQ   oddrow, RA      // jump if on an odd row
+            MOV     R3 -> [R1]      // store even row pattern
+            JMP     endloop
+oddrow:     MOV     R4 -> [R1]      // store odd row pattern
+endloop:    MOV     [endmem] -> R0  // last address to fill
+            JMPEQ   end_, R1        // reached it?
+            JMP     startloop       // no, so loop
+end_:       HALT
+dispmem:    DATA    7F          // initial address
+endmem:     DATA    FF          // end of memory
+bwpatt:     DATA    00001111    // display pattern 1
+wbpatt:     DATA    11110000    // display pattern 2
     </pre>
   </div>
 </div>

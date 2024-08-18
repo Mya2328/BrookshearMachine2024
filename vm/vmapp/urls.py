@@ -4,9 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.login, name='login'),
     path('login', views.login, name='login'),
-    path('register', views.register_user, name='register_user'),
     path('home', views.home, name='home'),
-    path('password_reset/', views.password_reset, name='password_reset'),
+    path('forgot_password', views.forgot_password, name='forgot_password'),
     path('api/upload_file/', views.upload_file, name='upload_file'),
     path('api/vmonline4/step/', views.call_vmonline4_step, name='call_vmonline4_step'),
     path('api/vmonline4/reset/', views.call_vmonline4_reset, name='call_vmonline4_reset'),
