@@ -1,0 +1,379 @@
+<div id="help" class="modal">
+  <div class="modal-content">
+    <span class="help-close">&times;</span>
+
+    <h1>Extended Brookshear Machine Emulator</h1>
+    <p>
+      This is an emulator for the machine described in
+      <em>Computer Science: An Overview, 10th edition</em>, by J. Glenn
+      Brookshear (Pearson Education, 2008). It is extended with three additional
+      instructions and the machine is equipped with a bitmapped display. The
+      machine may be programmed by entering machine code into the emulator, or
+      using assembly language.
+    </p>
+
+    <h2>Contents</h2>
+    <ul>
+                    <li><a href="#machine-architecture">Machine architecture</a></li>
+                    <li><a href="#instruction-set">Instruction set</a></li>
+                    <li><a href="#main-memory-panel">Main memory panel</a></li>
+                    <li><a href="#saving-loading-memory">Saving and loading memory</a></li>
+                    <li><a href="#compiling-loading-assembly">Compiling and loading assembly language programs</a></li>
+                    <li><a href="#register-panel">Register panel</a></li>
+                    <li><a href="#information-panel">Information panel</a></li>
+                    <li><a href="#cpu-controls-panel">CPU controls panel</a></li>
+                    <li><a href="#bitmapped-display">The bitmapped display</a></li>
+    </ul>
+
+    <h2>Machine architecture</h2>
+    <p>
+      Main memory has 256 cells with addresses from <code>00</code> to
+      <code>FF</code> (hex). Each cell holds 1 byte (8 bits) of data.
+    </p>
+    <p>
+      There are 16 registers, numbered from <code>0</code> to
+      <code>F</code> (hex), each able to hold 1 byte of data.
+    </p>
+    <p>
+      The program counter is additional to the general-purpose registers, and
+      holds a 1-byte memory address. It is incremented by 2 after each
+      instruction, unless a jump has taken place.
+    </p>
+
+    <h2>Instruction set</h2>
+    <p>
+      Each instruction occupies 2 consecutive bytes of memory, and is written as
+      4 hex digits. The first digit represents the opcode; the other three
+      specify registers, memory addresses or data. The first two digits are
+      stored in the byte of memory with the lower address.
+    </p>
+    <p>
+      In the list below, <code>r</code>, <code>s</code>, <code>t</code>,
+      <code>x</code> and <code>y</code> stand for hexadecimal digits. The
+      instructions with opcodes 1 to C are from Appendix C of Brookshear's book.
+      Those with opcodes D and E are based on extensions by Prof. I.K. Lundqvist
+      of MIT. Those with opcodes 0 and F are Sussex additions.
+    </p>
+
+    <pre>
+        0FFF
+        No operation. Carry on to the next instruction. The data fields must all be F.
+
+        1rxy
+        Load from memory (direct addressing). Copy the data at memory address xy into register r.
+
+        2rxy
+        Load value (immediate addressing). Copy xy into register r.
+
+        3rxy
+        Store (direct addressing). Copy the contents of register r into memory at address xy.
+
+        40rs
+        Move. Copy the contents of register r into register s.
+
+        5rst
+        Add as integers. Add the contents of register s to the contents of register t as twos complement integers. Put the result into register r.
+
+        6rst
+        Add as floats. Add the contents of register s to the contents of register t as floating point values. Put the result into register r. The floating point format is SEEEMMMM where S is the sign bit (1 for negative), EEE is the exponent in 3-bit excess format, and MMMM is the mantissa.
+
+        7rst
+        OR. Carry out the bitwise OR operation on the contents of register s and the contents of register t. Put the result into register r.
+
+        8rst
+        AND. Carry out the bitwise AND operation on the contents of register s and the contents of register t. Put the result into register r.
+
+        9rst
+        XOR. Carry out the bitwise exclusive or operation on the contents of register s and the contents of register t. Put the result into register r.
+
+        Ar0x
+        Rotate the contents of register r by x bits to the right. Update register r with the result.
+
+        B0xy
+        Jump to memory location xy. That is, the program counter is set to xy just before the next instruction is executed. Note that this is really a special case of the next instruction.
+
+        Brxy
+        Jump if equal. If the contents of register r equal the contents of register 0, jump to memory location xy.
+
+        C000
+        Halt. Stop execution.
+
+        D0rs
+        Load from memory (register indirect addressing). Copy the data from the memory location whose address is in register s. Place it in register r.
+        For example, if register s contains the value 86, and memory location 86 contains the value 7B, register r will be given the value 7B.
+
+        E0rs
+        Store in memory (register indirect addressing). Copy the data from register r. Place it in the memory location whose address is in register s.
+        For example, if register r contains the value EC, and register s contains the value 41, the value EC will be placed in memory at address 41.
+
+        F00t
+        Jump to register address. Jump to the memory address stored in register t. That is, the contents of register t are copied to the program counter. Note that this is really a special case of the next instruction.
+
+        Frxt
+        Jump to register address with test. The contents of register r are compared to the contents of register 0 using a test which depends on x. If the result of the test is true, a jump is made to the memory address stored in register t.
+        The allowable values of x and the corresponding tests are:
+            x       Jump if
+            -       -------
+            0       Rr == R0 (equal)
+            1       Rr != R0 (not equal)
+            2       Rr >= R0 (greater than or equal)
+            3       Rr <= R0 (less than or equal)
+            4       Rr > R0  (greater than)
+            5       Rr < R0  (less than)
+        The register values are treated as unsigned integers for the comparisons.
+        For example, if the command is FA4B, then if the value of register A is greater than the value of register 0, the program will jump to the instruction whose address is stored in register B.
+    </pre>
+
+    <h2>Main memory panel</h2>
+    <p>
+      Each column of the display gives a different view of the memory contents.
+      All the entries in a row are different ways of showing the same underlying
+      data, which is stored in memory at the address on the left.
+    </p>
+    <p>The addresses to which the program counter points are highlighted.</p>
+    <p>
+      The <strong>Binary</strong> column gives the view that is nearest to how
+      the data are held in hardware. The <strong>Hex</strong> column is the most
+      useful for interpreting the data as code: instructions and addresses. The
+      remaining columns show how the data can be read if it is being used to
+      represent characters or numbers. The numerical columns are particularly
+      relevant if <code>ADDI</code> or <code>ADDF</code> operations are carried
+      out on the data.
+    </p>
+    <p>
+      The data at a memory location may be changed by editing any of its
+      representations. Click in the relevant box, and edit the text as you would
+      any other editable text display. Press return or the up or down arrow, or
+      click in another part of the display to complete editing. Provided the new
+      entry is valid, memory will be updated and the other entries in the row
+      will change accordingly. Floating point numbers will be rounded to the
+      nearest value that can be represented.
+    </p>
+    <p>
+      If an entry can be interpreted as a machine instruction, a textual
+      representation will be shown on the right against even addresses only,
+      since each instruction occupies two memory locations. (If the program
+      counter is set to an odd value, the text is shown against odd memory
+      locations.) The text can be switched between an informal description of
+      the action carried out by the instruction and assembly language (as
+      defined here) using the radio buttons at the bottom of the panel.
+    </p>
+    <p>
+      Thirty-two memory locations are displayed. To move through memory, use the
+      slider at the left of the display, or press the Page Up or Page Down key
+      when a memory cell has been selected.
+    </p>
+    <p>
+      The <strong>Reset</strong> button enters <code>00</code> into all memory
+      locations.
+    </p>
+
+    <h2>Saving and loading memory</h2>
+    <p>
+      The <strong>Save in file</strong> button allows you to store the current
+      contents of memory in a file. Only memory locations which contain non-zero
+      values are stored. The file that is written is a plain text file, so it is
+      a good idea to give it a <code>.txt</code> extension. You can view and
+      edit it with a text editor such as the Matlab editor, WordPad, Notepad,
+      Emacs or vi. The addresses and data are recorded in hex, and the
+      instruction text is also recorded as either informal descriptions or
+      assembly language, as set by the radio buttons.
+    </p>
+    <p>
+      The <strong>Load from file</strong> button allows you to select a file
+      containing machine code in hex. Its contents are loaded into memory. Only
+      addresses that are specified in the file are updated, so it may be
+      sensible to reset the memory before loading a file. The file can be one
+      that has been previously saved with the <strong>Save</strong> button, or
+      one that you have written or modified with a text editor.
+    </p>
+    <p>
+      The format of a memory file is as follows. The file is structured into
+      lines which are loaded in order. Each line can have three parts:
+    </p>
+    <ul>
+      <li><strong>ADDRESS</strong></li>
+      <li><strong>DATA</strong></li>
+      <li><strong>COMMENT</strong></li>
+    </ul>
+    <p>
+      Each of these may be omitted. Any white space (spaces or tabs) is ignored.
+    </p>
+    <p>
+      <strong>ADDRESS</strong> has the format <code>hh:</code> where
+      <code>hh</code> is two hexadecimal digits (0-9, A-F or a-f). Values from
+      the <strong>DATA</strong> field are loaded into memory starting from the
+      address specified. If <strong>ADDRESS</strong> is omitted then:
+    </p>
+    <ul>
+      <li>
+        if this is the first line of the file, the address is set to
+        <code>00</code>
+      </li>
+      <li>
+        otherwise, if some data were loaded by the previous line, the address is
+        set to 1 greater than the address of the last byte loaded
+      </li>
+      <li>otherwise, the address is the same as for the previous line</li>
+    </ul>
+    <p>
+      <strong>DATA</strong> is an even number of hexadecimal digits. Each pair
+      of digits specifies the data for a byte of memory. The address given is
+      used for the first pair, and is incremented by 1 for each subsequent pair.
+    </p>
+    <p>
+      <strong>COMMENT</strong> has the format <code>//aaaa</code> where
+      <code>aaaa</code> is any text. The comment is ignored.
+    </p>
+    <p>
+      A simple memory file for a program that is to be loaded from address 0
+      need therefore only contain the data. For example, a program that causes
+      the machine to count up indefinitely from 0 could be stored in a file
+      containing just the following single line of text:
+    </p>
+    <pre>2000 2101 5001 B004</pre>
+    <p>
+      The spaces are not necessary, and the entries could be spread over
+      different lines. However, the program is clearer if stored with comments
+      and addresses:
+    </p>
+    <pre>
+        // Brookshear Machine memory
+        00: 2000 // Load register 0 with value 00
+        02: 2101 // Load register 1 with value 01
+        04: 5001 // Put reg 0 + reg 1 (ints) in reg 0
+        06: B004 // Jump to 04
+    </pre>
+
+    <h2>Compiling and loading assembly language programs</h2>
+    <p>
+      BM programs may be written in assembly language, described here. The
+      <strong>Assemble and load</strong> button in the main memory panel allows
+      you to specify a file containing an assembly language program. This will
+      be read and if it compiles without error the machine code will be loaded
+      into memory. If an error is found a message will be displayed and memory
+      left unchanged.
+    </p>
+    <p>
+      An assembly language program may also be compiled to machine code which is
+      stored in a file without affecting memory. The
+      <strong>Assemble to file</strong> button carries this out. The file
+      produced may be subsequently loaded into memory using the
+      <strong>Load from file</strong> button.
+    </p>
+    <p>
+      The assembly language description may be accessed using the
+      <strong>Assembler help</strong> button.
+    </p>
+
+    <h2>Register panel</h2>
+    <p>
+      The registers are displayed in the same way as the main memory. However,
+      the fields for the general purpose registers can not be edited: the only
+      way to change their contents is to run a program.
+    </p>
+    <p>
+      The program counter is only displayed in hex. Its value can be edited to
+      change the memory locations from which the next instruction will be taken.
+    </p>
+    <p>
+      The <strong>Reset</strong> button sets all the registers and the program
+      counter to <code>00</code>. It does not affect main memory.
+    </p>
+
+    <h2>Information panel</h2>
+    <p>
+      The <strong>List instructions</strong> button displays a condensed list of
+      the machine instructions for quick reference.
+    </p>
+    <p>
+      The <strong>Help</strong> button displays the information you are reading.
+    </p>
+    <p>
+      The <strong>Assembly help</strong> button displays assembly language
+      information.
+    </p>
+    <p>Error messages are displayed in the area below the buttons.</p>
+
+    <h2>CPU controls panel</h2>
+    <p>
+      The <strong>Step</strong> button executes the next instruction (the
+      instruction at the address in the program counter).
+    </p>
+    <p>
+      The <strong>Continue</strong> button starts the machine running from the
+      address currently in the program counter, and with the values currently in
+      the registers. Execution continues until a <code>HALT</code> instruction
+      is executed, an error occurs, or the <strong>Halt</strong> button is
+      pressed.
+    </p>
+    <p>
+      The <strong>Reset & Run</strong> button resets the registers and program
+      counter to <code>00</code> and then starts the machine running as for the
+      <strong>Continue</strong> button.
+    </p>
+    <p>
+      When the machine is running, the <strong>Reset & Run</strong> becomes a
+      <strong>Halt</strong> button. This stops the machine after the current
+      instruction has executed. The program may be resumed from the same point
+      by pressing <strong>Continue</strong>.
+    </p>
+    <p>
+      The <strong>Speed</strong> slider controls the time between execution
+      steps when the machine is running. It may be adjusted during execution.
+    </p>
+
+    <h2>The bitmapped display</h2>
+    <p>
+      This particular machine has a bitmapped display attached to it. When the
+      display has been activated by pressing the
+      <strong>Display on/off</strong> button, it shows an image generated from
+      part of main memory.
+    </p>
+    <p>
+      Memory locations <code>80</code> to <code>FF</code> are used for the
+      display. (This does not prevent their being used for programs or data.)
+      Each bit in this part of memory is mapped to a pixel of the display. If
+      the bit is 0, the pixel is black, if the bit is 1, the pixel is white. The
+      display has 32 rows and 32 columns.
+    </p>
+    <p>
+      Bits are mapped to pixels in the following way. Take the bits in the order
+      they appear in the memory display, starting with the leftmost bit at
+      address 80. Take the pixels starting from the top-left corner of the
+      display, going along each row of the display in turn. Associate each bit
+      with the corresponding pixel.
+    </p>
+    <p>
+      Alternatively, number the bits in a byte like this: 76543210. That is, bit
+      7 is the leftmost bit and bit 0 is the rightmost bit. Identify a single
+      bit in memory as <code>hh:n</code> where <code>hh</code> is the address of
+      a byte and <code>n</code> is the number of a bit within that byte. Memory
+      bits are laid out below in the way that corresponds to pixels in the
+      display.
+    </p>
+    <pre>
+        80:7 80:6 80:5 80:4 80:3 80:2 80:1 80:0 81:7 ... 83:2 83:1 83:0
+        84:7 84:6 ...                                     ... 87:1 87:0
+        88:7 88:6 ...                                     ... 8B:1 8B:0
+        ...                                                       ...
+        ...                                                       ...
+        F8:7 F8:6 ...                                     ... FB:1 FB:0
+        FC:7 FC:6 FC:5 ... FE:0 FF:7 FF:6 FF:5 FF:4 FF:3 FF:2 FF:1 FF:0
+    </pre>
+    <p>
+      The display is updated whenever memory is changed, either by a program or
+      by editing the memory display, so it is possible to see graphically the
+      effects of setting different values.
+    </p>
+    <p>
+      The current display can be saved to an image file in a variety of formats,
+      by clicking on the <strong>Save display</strong> button, selecting a
+      format and entering a file name in the pop-up window.
+    </p>
+
+    <footer>
+      <p>Published with JAVA® 1.7</p>
+    </footer>
+  </div>
+</div>

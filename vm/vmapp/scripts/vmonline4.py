@@ -3,6 +3,7 @@
 from vmapp.scripts.asm3 import Assembler
 from icecream import ic
 
+
 class VirtualMachine:
     def __init__(self, assembler=None):
         self.assembler = assembler if assembler else Assembler()
@@ -190,6 +191,20 @@ class VirtualMachine:
             'operands': self.operands,
             'halted': self.halted
         }
+
+
+#   def resetMemory(self):
+#      self.memory = [0] * 256
+
+#   def resetRegister(self):
+#       self.assembler.reset()
+#       self.registers = [0] * 16
+#       self.program_counter = 0
+#       self.halted = False
+#       self.instruction_register = 0
+#       self.opcode = 0
+#       self.operands = [0, 0, 0]
+
 
 # Example usage
 if __name__ == '__main__':

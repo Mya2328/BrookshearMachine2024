@@ -10,8 +10,22 @@ import json
 assembler = Assembler()
 vm = VirtualMachine(assembler)
 
+
+def login(request):
+    return render(request, 'login.html')
+
+
+def password_reset(request):
+    return render(request, 'password_reset.html')
+
+
 def home(request):
-    return render(request, 't1.html')
+    return render(request, 'index.html')
+
+
+def register_user(request):
+    return render(request, 'register.html')
+
 
 def call_asm3(request):
     code = request.GET.get('code', """
@@ -36,9 +50,11 @@ def call_asm3(request):
     assembler.assemble(code)
     return JsonResponse({'status': 'assembled', 'memory': assembler.get_memory()})
 
+
 def call_vmonline4_step(request):
     vm.step()
     return JsonResponse(vm.get_state())
+
 
 def call_vmonline4_reset(request):
     vm.reset()
@@ -48,10 +64,13 @@ def call_vmonline4_run(request):
     vm.run()
     return JsonResponse(vm.get_state())
 
+
 def call_vmonline4_load(request):
     vm.reset()
-    vm.load_program_from_file('machinecode.m')
+    file_path = request.GET.get('file_path')
+    vm.load_program_from_file('.txt')
     return JsonResponse(vm.get_state())
+
 
 def call_vmonline4_update_memory(request):
     if request.method == 'POST':
@@ -65,6 +84,7 @@ def call_vmonline4_update_memory(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid memory update data'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
 
 def upload_file(request):
     if request.method == 'POST':
@@ -80,3 +100,13 @@ def upload_file(request):
         return JsonResponse({'status': 'assembled', 'machine_code': machine_code})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+#def call_vmonline4_resetMemory():
+#    vm.resetMemory()
+#    return JsonResponse(vm.get_state())
+
+
+#def call_vmonline4_resetRegister():
+#    vm.resetRegister()
+#    return JsonResponse(vm.get_state())

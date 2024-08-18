@@ -104,9 +104,10 @@
             }
 
             .assembly-machine-container {
-                display: flex;
-                flex-direction: row;
+                //display: flex;
+                //flex-direction: row;
                 gap: 20px;
+                margin: 30px;
             }
             .display-container {
                 align-items: center;
@@ -118,6 +119,19 @@
                 border: 1px solid #000;
                 margin-bottom: 10px;
                 align-items: stretch;
+            }
+            input[type="text"].narrow-input {
+                width: 80px; /* Adjust width based on the expected character length */
+                text-align: right;
+                box-sizing: border-box; /* Ensure padding is included in the width */
+            }
+            #assemblyBox {
+                border: solid;
+                padding-bottom: 40px;
+            }
+            #machinecodeBox {
+                border: solid;
+                padding-bottom: 40px;
             }
         </style>
     </head>
@@ -133,6 +147,7 @@
                             <th>Hex</th>
                             <th>Integer</th>
                             <th>Float</th>
+                            <th>instruction</th>
                         </tr>
                     </thead>
                     <tbody id="memory-data">
@@ -150,12 +165,15 @@
                             <th>Hex</th>
                             <th>Integer</th>
                             <th>Float</th>
+                            
                         </tr>
                     </thead>
                     <tbody id="registers-data">
                         <!-- Register data will be inserted here -->
                     </tbody>
                 </table>
+                <hr />
+                <h2>Bit Display:</h2>
                 <div class="display-container">
                     <canvas
                         id="display-canvas"
@@ -166,6 +184,7 @@
             </div>
             <div class="controls">
                 <h2>Controls</h2>
+                <hr />
                 <div class="control-buttons">
                     <button onclick="loadMachineCode()">Load</button>
                     <button onclick="resetVM()">Reset</button>
@@ -174,6 +193,7 @@
                     <button onclick="toggleDisplay()">Display On/Off</button>
                     <button onclick="saveDisplay()">Save Display</button>
                 </div>
+                <hr />
                 <div>
                     <label>Program Counter:</label>
                     <input
@@ -211,23 +231,24 @@
                         onchange="updateSpeed()"
                     />
                 </div>
+                <hr />
                 <form id="upload-form" enctype="multipart/form-data">
                     <label for="input-file">Upload Assembly Code File:</label>
                     <input type="file" id="input-file" name="input_file" />
                     {% csrf_token %}
                     <button type="submit">Assemble</button>
                 </form>
+                <hr />
                 <div class="assembly-machine-container">
-                    <div>
+                    <div id="assemblyBox">
                         <label>Assembly Code:</label>
                         <div id="assembly-code" class="scroll-box"></div>
                     </div>
-                    <div>
+                    <div id="machinecodeBox">
                         <label>Machine Code:</label>
                         <div id="machine-code" class="scroll-box"></div>
                     </div>
                 </div>
-           
             </div>
         </div>
 
@@ -249,7 +270,9 @@
             let stepDelay = 500; // Default to 500ms per step
 
             function updateUI(data) {
-                loadMemory(data.memory);
+                console.log('getting instruction')
+                console.log(data.decoded_instruction)
+                loadMemory(data.memory,data.decoded_instruction);
                 loadRegisters(data.registers);
                 programCounter.value = data.program_counter
                     .toString(16)
@@ -273,110 +296,138 @@
                 }
             }
 
-            function loadMemory(memory) {
-    memoryData.innerHTML = "";
-    memory.forEach((item, index) => {
-        const row = document.createElement("tr");
+            function loadMemory(memory,dinstruction) {
+                memoryData.innerHTML = "";
+                //console.log('dinstruction')
+                //console.log(dinstruction)
+                let i = 0;
+                memory.forEach((item, index) => {            
+                
+                const row = document.createElement("tr");
+                let instruction = 'N/A'
+                if (index % 2 == 0)
+                {
+                    console.log('real instr')
+                    console.log(index)
+                    console.log(i)
+                    console.log(dinstruction)
+                    console.log(dinstruction[i])
+                    instruction = dinstruction[i];  // Get the instruction or show "N/A"
+                    console.log(instruction)
+                    i++;
+                }
+                else{
+                    instruction = 'N/A'
+                }
+                   
+                    console.log(instruction)
+                    const binaryValue = item.toString(2).padStart(8, '0');
+                    const integerValue = item.toString();
+                    const hexValue = item.toString(16).padStart(2, '0');
+                    const floatValue = parseFloat(item).toFixed(3);
+                    const charValue = item.ascii;
 
-        const binaryValue = item.toString(2).padStart(8, "0");
-        const integerValue = item.toString(10);
-
-        row.innerHTML = `
+                    row.innerHTML = `
             <td>${index.toString(16).padStart(2, "0").toUpperCase()}</td>
             <td>
-                <input type="text" value="${binaryValue}" onchange="syncMemoryFields(${index}, this.value, 'binary')">
+                <input type="text" class="narrow-input" value="${binaryValue}" onchange="syncMemoryFields(${index}, this.value, 'binary')">
             </td>
+            <td> <input type="text" class="narrow-input" value="${hexValue}" onchange="syncMemoryFields(${index}, this.value, 'binary')"></td>
             <td>
-                <input type="text" value="${integerValue}" onchange="syncMemoryFields(${index}, this.value, 'integer')">
+                <input type="text" class="narrow-input" value="${integerValue}" onchange="syncMemoryFields(${index}, this.value, 'integer')">
             </td>
-            <td>${item.toString(16).padStart(2, "0").toUpperCase()}</td>
-            <td>${parseFloat(item).toFixed(3)}</td>
+
+            <td>${floatValue}</td>
+            <td>${instruction}</td>
         `;
-        memoryData.appendChild(row);
-    });
-}
+                    memoryData.appendChild(row);
+                });
+            }
 
-function loadRegisters(registers) {
-    registersData.innerHTML = "";
-    registers.forEach((item, index) => {
-        const row = document.createElement("tr");
+            function loadRegisters(registers) {
+                registersData.innerHTML = "";
+                registers.forEach((item, index) => {
+                    const row = document.createElement("tr");
 
-        const binaryValue = item.toString(2).padStart(8, "0");
-        const integerValue = item.toString(10);
+                    const binaryValue = item.toString(2).padStart(8, "0");
+                    const integerValue = item.toString(10);
 
-        row.innerHTML = `
+                    row.innerHTML = `
             <td>${index.toString(16).toUpperCase()}</td>
             <td>
-                <input type="text" value="${binaryValue}" onchange="syncRegisterFields(${index}, this.value, 'binary')">
-            </td>
-            <td>
-                <input type="text" value="${integerValue}" onchange="syncRegisterFields(${index}, this.value, 'integer')">
+                <input type="text" class="narrow-input" value="${binaryValue}" onchange="syncRegisterFields(${index}, this.value, 'binary')">
             </td>
             <td>${item.toString(16).padStart(2, "0").toUpperCase()}</td>
+            <td>
+                <input type="text" class="narrow-input" value="${integerValue}" onchange="syncRegisterFields(${index}, this.value, 'integer')">
+            </td>
             <td>${parseFloat(item).toFixed(3)}</td>
         `;
-        registersData.appendChild(row);
-    });
-}
+                    registersData.appendChild(row);
+                });
+            }
 
-function syncMemoryFields(index, value, type) {
-    let newValue;
-    if (type === 'binary') {
-        newValue = parseInt(value, 2);
-    } else if (type === 'integer') {
-        newValue = parseInt(value, 10);
-    }
+            function syncMemoryFields(index, value, type) {
+                let newValue;
+                if (type === "binary") {
+                    newValue = parseInt(value, 2);
+                } else if (type === "integer") {
+                    newValue = parseInt(value, 10);
+                }
 
-    if (!isNaN(newValue)) {
-        // Update the memory in the backend
-        fetch("/api/vmonline4/update_memory/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({ index: index, value: newValue }),
-        })
-        .then(response => response.json())
-        .then(data => updateUI(data))
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred while updating the memory.");
-        });
-    } else {
-        alert("Invalid value");
-    }
-}
+                if (!isNaN(newValue)) {
+                    // Update the memory in the backend
+                    fetch("/api/vmonline4/update_memory/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ index: index, value: newValue }),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => updateUI(data))
+                        .catch((error) => {
+                            console.error("Error:", error);
+                            alert(
+                                "An error occurred while updating the memory.",
+                            );
+                        });
+                } else {
+                    alert("Invalid value");
+                }
+            }
 
-function syncRegisterFields(index, value, type) {
-    let newValue;
-    if (type === 'binary') {
-        newValue = parseInt(value, 2);
-    } else if (type === 'integer') {
-        newValue = parseInt(value, 10);
-    }
+            function syncRegisterFields(index, value, type) {
+                let newValue;
+                if (type === "binary") {
+                    newValue = parseInt(value, 2);
+                } else if (type === "integer") {
+                    newValue = parseInt(value, 10);
+                }
 
-    if (!isNaN(newValue)) {
-        // Update the registers in the backend
-        fetch("/api/vmonline4/update_register/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-            body: JSON.stringify({ index: index, value: newValue }),
-        })
-        .then(response => response.json())
-        .then(data => updateUI(data))
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred while updating the register.");
-        });
-    } else {
-        alert("Invalid value");
-    }
-}
-
+                if (!isNaN(newValue)) {
+                    // Update the registers in the backend
+                    fetch("/api/vmonline4/update_register/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ index: index, value: newValue }),
+                    })
+                        .then((response) => response.json())
+                        .then((data) => updateUI(data))
+                        .catch((error) => {
+                            console.error("Error:", error);
+                            alert(
+                                "An error occurred while updating the register.",
+                            );
+                        });
+                } else {
+                    alert("Invalid value");
+                }
+            }
 
             function loadMachineCode() {
                 fetch("/api/vmonline4/load/")
@@ -553,7 +604,7 @@ function syncRegisterFields(index, value, type) {
                         .then((response) => response.json())
                         .then((data) => {
                             if (data.status === "assembled") {
-                                console.log("Machine code:", data.machine_code);
+                               console.log("Machine code:", data.machine_code);
                                 displayMachineCode(data.machine_code);
                                 alert(
                                     "File uploaded and assembled successfully!",

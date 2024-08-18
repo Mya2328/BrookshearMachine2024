@@ -1,0 +1,315 @@
+<div id="assembler-help" class="modal">
+  <div class="modal-content">
+    <span class="assembler-help-close">&times;</span>
+
+    <h1>Extended Brookshear Machine Assembler</h1>
+    <p>
+      This is an assembler for the machine described in
+      <em>Computer Science: An Overview</em>, 10th edition, by J. Glenn
+      Brookshear (Pearson Education, 2008). The machine is extended with three
+      additional instructions. For information about the machine architecture,
+      see help information for the emulator.
+    </p>
+
+    <h2>Contents</h2>
+    <ul>
+      <li><a href=#assembler-conventions">Conventions</li>
+      <li><a href=#assembler-fileformet">File format</li>
+      <li><a href=#assembler-assemblyandloadingprocess">Assembly and loading process</li>
+      <li><a href=#assembler-MOVinstruction">MOV instruction</li>
+      <li><a href=#assembler-registeroperationinstructions">Register operation instructions</li>
+      <li><a href=#assembler-controlinstructions">Control instructions</li>
+      <li><a href=#assembler-DATAinstruction">DATA instruction</li>
+      <li><a href=#assembler-addressesandlabels">Addresses and Labels</li>
+      <li><a href=#assembler-example">Example</li>
+    </ul>
+
+    <h2 id="assembler-conventions">Conventions</h2>
+    <p>
+      Text in italics in a format is a placeholder: it needs to be replaced with
+      an appropriate character sequence to make a legal instruction. The
+      characters m, n, p, x and y stand for hex characters. Hex characters are
+      0-9, A-F, and a-f.
+    </p>
+
+    <h2 id="assembler-fileformet">File format</h2>
+    <p>
+      The assembly language file is a plain text file and can be prepared using
+      a text editor such as the Matlab editor, WordPad, Notepad, Emacs, or vi.
+      It is read as a sequence of lines. Each line contains one statement, with
+      the format:
+    </p>
+    <pre>location instruction comment</pre>
+    <p>where:</p>
+    <ul>
+      <li>
+        <strong>location</strong> has the format <em>xy:</em> or
+        <em>label:</em> (note the colon at the end) and is described below in
+        the section "Addresses and Labels".
+      </li>
+      <li>
+        <strong>instruction</strong> has the format <em>OP args</em>, where OP
+        specifies an operation. Instructions are described in the sections
+        below.
+      </li>
+      <li>
+        <strong>comment</strong> has the format <em>// text</em> and is ignored.
+      </li>
+    </ul>
+    <p>
+      Any or all of the three components may be omitted. White space before any
+      of the components is ignored.
+    </p>
+    <p>
+      The first example below has all three components, the second has only a
+      location and a comment, and the third has only an instruction:
+    </p>
+    <pre>
+        loop:   ADDI R1, R2 -> R3   // increment loop counter
+        A0:     // next instruction will be loaded at location A0
+        ROT  R1, 4
+    </pre>
+
+    <h2 id="assembl-assemblyandloadingprocess">Assembly and loading process</h2>
+    <p>
+      Each assembly language instruction, except DATA, is translated into a
+      single Brookshear Machine (BM) instruction. The code for this instruction
+      is allocated to two memory cells, starting at the next free cell unless
+      this is overridden by an explicit address in the location field (see
+      "Addresses and Labels" below).
+    </p>
+    <p>
+      BM execution normally starts from address 0, and so the first instruction
+      in the program should usually be stored at address 0. This is the default
+      if no explicit address is given.
+    </p>
+    <p>
+      The output of the assembler can be loaded directly into memory or saved as
+      a machine code file, which may then be loaded. These options are described
+      in the general help for the emulator.
+    </p>
+
+    <h2 id="assembler-MOVinstruction">MOV instruction</h2>
+    <p>
+      The MOV instruction moves (or more precisely copies) a byte of data from
+      one location to another. Its general format is:
+    </p>
+    <pre>MOV source -> destination</pre>
+    <p>
+      The source and destination may be specified in a variety of ways,
+      corresponding to different addressing modes. Six different combinations
+      are legal, as follows.
+    </p>
+
+    <h3>MOV value -> Rn</h3>
+    <p>
+      The value is fixed when the assembly language is written, and it is stored
+      in memory as part of the program. (This is immediate-mode addressing.) It
+      may be specified in the assembler instruction in one of the following
+      ways:
+    </p>
+    <ul>
+      <li>
+        Two hex characters, optionally followed by "h", e.g. 1Ch, 13, 02. Note
+        that a value of 13 means hexadecimal 13, i.e. decimal 19, not decimal
+        13.
+      </li>
+      <li>
+        Eight binary characters (0 or 1), optionally followed by "b", e.g.
+        00010101, 11011111b.
+      </li>
+      <li>
+        A signed decimal integer in the range -128 to +127. This is written with
+        a leading + or - sign followed by 1, 2 or 3 decimal characters (0-9). If
+        it is positive and has only one digit, the sign may be omitted. E.g.
+        -100, 7, +33. The value stored represents the integer in twos complement
+        format.
+      </li>
+      <li>
+        A floating point number in the range -7.5 to 7.5. This is written with
+        an optional sign and must contain a decimal point. There must be at
+        least one decimal digit before the point. E.g. 0.0, -3.2, +4., 0.03. The
+        value stored represents the number, or an approximation to it, in the
+        floating-point format described in the emulator documentation and in
+        <em>Computer Science: An Overview</em>.
+      </li>
+      <li>
+        A single ASCII character, written between quotes. E.g. "c", ",", """,
+        "8". The ASCII code for the character is stored.
+      </li>
+      <li>A label. See the section below on addresses and labels.</li>
+    </ul>
+    <p>
+      The destination must be a register. This is written as <em>Rn</em> where
+      <em>n</em> is a hex character that specifies which register receives the
+      data.
+    </p>
+    <p>(BM opcode: 2.)</p>
+
+    <h3>MOV Rm -> Rn</h3>
+    <p>
+      The value held in register Rm is copied to register Rn, where m and n
+      specify the source and destination registers respectively.
+    </p>
+    <p>(BM opcode: 4.)</p>
+
+    <h3>MOV [xy] -> Rn</h3>
+    <p>
+      The value held in the memory cell with address xy is loaded into register
+      Rn. A label may be used instead of an explicit address. (The source is
+      specified using direct addressing.)
+    </p>
+    <p>(BM opcode: 1.)</p>
+
+    <h3>MOV Rn -> [xy]</h3>
+    <p>
+      The value held in register Rn is stored in the memory cell with address
+      xy. A label may be used instead of an explicit address. (The destination
+      uses direct addressing.)
+    </p>
+    <p>(BM opcode: 3.)</p>
+
+    <h3>MOV [Rm] -> Rn</h3>
+    <p>
+      The value held in the memory cell whose address is in register Rm is
+      loaded into register Rn. (The source uses register indirect addressing.)
+    </p>
+    <p>(BM opcode: D.)</p>
+
+    <h3>MOV Rn -> [Rm]</h3>
+    <p>
+      The value held in register Rn is stored in the memory cell whose address
+      is in register Rm. (The destination uses register indirect addressing.)
+    </p>
+    <p>(BM opcode: E.)</p>
+
+    <h2 id="assembler-registeroperationinstructions">Register operation instructions</h2>
+    <h3>ROT Rn, x</h3>
+    <p>
+      The bit pattern in register Rn is rotated x bits to the right. For
+      example, if x is 1, the rightmost bit is moved to the left and every other
+      bit is moved 1 place to the right: 00010001 becomes 10001000 and 01011011
+      becomes 10101101. Higher values of x are equivalent to repeating this
+      process x times altogether. Rn is updated to contain the new pattern.
+    </p>
+    <p>(BM opcode: A.)</p>
+
+    <p>
+      Each of the remaining register instructions represents an operation with
+      two inputs and one output. These have the general form:
+    </p>
+    <pre>OP Rn, Rm -> Rp</pre>
+    <p>
+      OP specifies the operation to be carried out. Registers Rn and Rm contain
+      the source data, and register Rp is the destination in which the result of
+      the operation is stored. Any pair, or all three, of m, n, and p may be the
+      same.
+    </p>
+
+    <h3>ADDI Rn, Rm -> Rp</h3>
+    <p>
+      The contents of Rn and Rm are added, assuming that they represent signed
+      integers in twos complement format.
+    </p>
+    <p>(BM opcode: 5.)</p>
+
+    <h3>ADDF Rn, Rm -> Rp</h3>
+    <p>
+      The contents of Rn and Rm are added, assuming that they represent floating
+      point numbers in the format described in the emulator help document and in
+      <em>Computer Science: An Overview</em>.
+    </p>
+    <p>(BM opcode: 9.)</p>
+
+    <h3>AND Rn, Rm -> Rp</h3>
+    <p>
+      The contents of Rn and Rm are combined in a bitwise AND operation, with
+      corresponding bits in the result set to 1 if and only if both of the
+      corresponding bits in Rn and Rm are 1.
+    </p>
+    <p>(BM opcode: 6.)</p>
+
+    <h3>OR Rn, Rm -> Rp</h3>
+    <p>
+      The contents of Rn and Rm are combined in a bitwise OR operation, with
+      corresponding bits in the result set to 1 if and only if at least one of
+      the corresponding bits in Rn or Rm is 1.
+    </p>
+    <p>(BM opcode: 7.)</p>
+
+    <h3>CLR Rn</h3>
+    <p>Sets all bits in register Rn to 0.</p>
+    <p>(BM opcode: 0.)</p>
+
+    <h2 id="assembler-controlinstructions">Control instructions</h2>
+    <h3>JMP xy</h3>
+    <p>
+      Sets the instruction counter to xy. The next instruction to be executed
+      will be the one stored at this address. A label may be used instead of an
+      explicit address.
+    </p>
+    <p>(BM opcode: B.)</p>
+
+    <h3>JMS xy</h3>
+    <p>
+      Jumps to address xy in the same way as JMP. It also saves the address of
+      the next instruction in register F so that the subroutine called can
+      return to it by jumping to the location held in F.
+    </p>
+    <p>(BM opcode: C.)</p>
+
+    <h3>JZ Rn, xy</h3>
+    <p>
+      If the value in register Rn is zero, jumps to address xy. A label may be
+      used instead of an explicit address.
+    </p>
+    <p>(BM opcode: 8.)</p>
+
+    <h2 id="assembler-DATAinstruction">DATA instruction</h2>
+    <p>
+      The DATA instruction loads bytes into consecutive memory cells, starting
+      at the specified address. Its general format is:
+    </p>
+    <pre>DATA xy: value</pre>
+    <p>
+      The address may be specified either explicitly or by a label, as in any
+      other instruction. The value is specified using any of the forms allowed
+      for the source operand in the MOV instruction. It may consist of a list of
+      such values, separated by commas, in which case the values are loaded into
+      successive locations starting with xy. For example, the instruction:
+    </p>
+    <pre>DATA 20: "h", 35h, 5</pre>
+    <p>
+      loads the ASCII code for "h" into location 20, hexadecimal 35 into
+      location 21, and a binary 00000101 into location 22.
+    </p>
+    <p>
+      The default starting address is the next free cell. This is the location
+      that would be used for a normal instruction if one were encountered.
+    </p>
+
+    <h2 id="assembler-addressesandlabels">Addresses and Labels</h2>
+    <p>
+      Memory addresses may be written as two hex digits. The instruction is
+      loaded starting at the specified address.
+    </p>
+    <p>
+      A label is a name for an address. Labels may be used as arguments in MOV,
+      JMP, JMS, and JZ instructions. The address that the label represents is
+      the location to which it was attached. Labels must be followed by a colon
+      when they appear on a line by themselves.
+    </p>
+
+    <h2 id="assembler-example">Example</h2>
+    <p>
+      The following example adds three numbers stored in locations 1A, 1B, and
+      1C and stores the result in location 20:
+    </p>
+    <pre>
+        MOV [1A] -> R0
+        ADDI [1B], R0 -> R0
+        ADDI [1C], R0 -> R0
+        MOV R0 -> [20]
+    </pre>
+  </div>
+</div>

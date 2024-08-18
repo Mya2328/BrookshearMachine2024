@@ -39,6 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'vmapp',
+    'crispy_forms',
+    'crispy_bootstrap4',
+    'register.apps.RegisterConfig',
+    'social_django',
+    'register_user',
+
 ]
 
 MIDDLEWARE = [
@@ -52,12 +58,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'vm.urls'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'vmapp', 'templates')],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Add any extra template directories here
+        'APP_DIRS': True,  # Ensure this is True so Django looks for templates in each app's templates directory
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -69,6 +76,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'vm.wsgi.application'
 
 
@@ -79,7 +87,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+
+        }
 }
 
 
