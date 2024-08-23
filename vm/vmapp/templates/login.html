@@ -21,14 +21,14 @@
         <h1>JBrookShear Machine</h1>
         <div class="login-input">
           <label for="email">Email Address</label>
-          <input type="email" id="student@sussex.ac.uk" />
+          <input type="email" id="email" />
         </div>
         <div class="login-input">
           <label for="password">Password</label>
-          <input type="text" id="student" />
+          <input type="text" id="password" />
         </div>
         <a class="link" href="{% url 'forgot_password' %}">Forgot password</a>
-        <a2 class="link" href="{% url 'vm/vmapp/templates/t1.html' %}">Login</a2>
+        <button class="control-button">Login</button>
       </div>
       <div class="university-logo-container">
           <img class="university-logo" src="{% static 'University_of_Sussex_Logo.png' %}" alt="University logo" />
