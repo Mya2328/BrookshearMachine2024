@@ -1,0 +1,21 @@
+LOADI R1, 0x80  ; Start address of display memory
+LOADI R2, 0xFF  ; Value to draw a line (11111111 in binary)
+
+; Directly setting values to draw a horizontal line at the top of the display
+STORE R2, R1    ; Address 0x80
+LOADI R1, 0x81
+STORE R2, R1    ; Address 0x81
+LOADI R1, 0x82
+STORE R2, R1    ; Address 0x82
+LOADI R1, 0x83
+STORE R2, R1    ; Address 0x83
+LOADI R1, 0x84
+STORE R2, R1    ; Address 0x84
+LOADI R1, 0x85
+STORE R2, R1    ; Address 0x85
+LOADI R1, 0x86
+STORE R2, R1    ; Address 0x86
+LOADI R1, 0x87
+STORE R2, R1    ; Address 0x87
+
+HALT
