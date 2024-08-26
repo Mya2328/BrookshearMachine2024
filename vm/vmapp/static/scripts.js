@@ -132,7 +132,7 @@ function syncMemoryFields(index, value, type) {
     }
 
     if (!isNaN(newValue)) {
-        // Update the memory in the backend
+        // Update the memory
         fetch("/api/vmonline4/update_memory/", {
             method: "POST",
             headers: {
@@ -161,7 +161,7 @@ function syncRegisterFields(index, value, type) {
     }
 
     if (!isNaN(newValue)) {
-        // Update the registers in the backend
+        // Update the registers
         fetch("/api/vmonline4/update_register/", {
             method: "POST",
             headers: {
@@ -293,7 +293,7 @@ function saveRegisterAsMachineCode() {
         return;
     }
 
-    // Create and download the machine code file
+    // Generate and download a machine code file
     const blob = new Blob([machineCode], {type: 'text/plain'});
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -430,7 +430,6 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
 function chooseAssemblyFile() {
     const fileInput = document.getElementById("assembly-file");
     fileInput.click();
