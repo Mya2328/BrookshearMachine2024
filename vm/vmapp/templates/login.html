@@ -19,7 +19,7 @@
     <form class="login-card" action="{% url 'home' %}" method="POST">
         {% csrf_token %}
         <img class="logo" src="{% static 'logo.png' %}" alt="logo"/>
-        <h1>JBrookShear Machine</h1>
+        <br>
         <div class="login-input">
             <label for="email">Email Address</label>
             <input type="email" id="email"/>
@@ -30,8 +30,14 @@
         </div>
         {#        <a class="link" href="{% url 'forgot_password' %}">Forgot password</a>#}
         <button class="control-button" type="submit">Login</button>
+        <br>
         <div class="d-flex justify-content-center links align-items-center">
-            Don't have an account?<a href="{% static 'register' %}" class="ml-2" style="text-decoration: none; font-size: 0.85rem; font-weight: bold;">Sign Up</a>
+            Don't have an account?
+        </div>
+        <br>
+        <div class="d-flex justify-content-center links align-items-center">
+
+            <a href="{% static 'register' %}" class="ml-2" style="text-decoration: none; font-size: 0.85rem; font-weight: bold;">Sign Up</a>
         </div>
     </form>
     <div class="university-logo-container">

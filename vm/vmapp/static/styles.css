@@ -174,7 +174,7 @@ li::marker {
   justify-content: space-evenly;
 }
 .information .logo {
-  width: 30%;
+  width: 60%;
 }
 .information-buttons {
   display: flex;
@@ -355,7 +355,7 @@ pre {
 }
 .login-card .logo,
 .forgot-card .logo {
-  width: 7.5rem;
+  width: 15rem;
 }
 .login-input,
 .forgot-input {
