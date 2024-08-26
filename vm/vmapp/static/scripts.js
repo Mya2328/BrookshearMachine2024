@@ -382,7 +382,7 @@ function stripComments(code) {
 
 function updateDisplay(memory) {
     const displaySize = 32;
-    const scale = 20; // Scale each bit to 20x20 pixels
+    const scale = 32; // Scale each bit to 20x20 pixels
     ctx.clearRect(0, 0, displayCanvas.width, displayCanvas.height);
 
     for (let row = 0; row < displaySize; row++) {

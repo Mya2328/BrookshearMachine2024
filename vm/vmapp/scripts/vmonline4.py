@@ -6,8 +6,8 @@ from icecream import ic
 class VirtualMachine:
     def __init__(self, assembler=None):
         self.assembler = assembler if assembler else Assembler()
-        self.memory = [0] * 256  # Initialize memory with 256 bytes
-        self.registers = [0] * 16  # Initialize 16 registers
+        self.memory = [0] * 256  # Set up memory with 256 bytes
+        self.registers = [0] * 16  # Set up 16 registers
         self.program_counter = 0
         self.halted = False
         self.instruction_register = 0
@@ -20,7 +20,7 @@ class VirtualMachine:
             lines = f.readlines()
         for i, line in enumerate(lines):
             line = line.strip() #remove \n
-            if i * 2 < len(self.memory): #check if memory still available (80)
+            if i * 2 < len(self.memory): #Verify if 80 bytes of memory are still available
                 self.memory[i * 2] = int(line[2:4], 16)   # first two hex, omit 0x
                 self.memory[i * 2 + 1] = int(line[4:], 16) # second two hex
                 # ic(line)
@@ -38,8 +38,8 @@ class VirtualMachine:
         instruction2 = self.memory[self.program_counter + 1]
         ic(instruction1)
         ic(instruction2)
-        self.program_counter += 2                                               # PC increment to two bytes
-        instruction = (instruction1 << 8) | instruction2                 # adding two 8 bits to be 16 bits instruction
+        self.program_counter += 2                         # Program counter increment to two bytes
+        instruction = (instruction1 << 8) | instruction2  # adding two 8 bits to be 16 bits instruction
         ic(instruction)
         self.instruction_register = instruction
         return instruction
@@ -199,7 +199,7 @@ class VirtualMachine:
                 instruction = (self.memory[address] << 8) | self.memory[address + 1]  # Combine two bytes into an instruction
                 self.decoded_instruction = self.decode_instruction(instruction)  # Assuming you have a decode function    
             else:
-                self.decoded_instruction = 'N/A'
+                self.decoded_instruction = ''
             
             instruction_list.append(self.decoded_instruction)
 
@@ -275,7 +275,7 @@ class VirtualMachine:
             condition = condition_map.get(x_or_s, "unknown")
             return f"Jump to address in R{y_or_t} if R{r} test R0 is {condition}"
         else:
-            return "Unknown Instruction"
+            return ""
 
 
 # Example usage

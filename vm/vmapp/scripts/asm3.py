@@ -2,8 +2,8 @@
 
 class Assembler:
     def __init__(self):
-        self.memory = [0] * 256  # Example memory size of 256 bytes
-        self.registers = [0] * 16  # Example register count of 16
+        self.memory = [0] * 256  #  memory size of 256 bytes
+        self.registers = [0] * 16  # register count of 16
         self.instructions = {
             "NOP": 0x0,
             "LOAD": 0x1,
